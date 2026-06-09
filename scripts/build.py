@@ -8,7 +8,6 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC_DIR = ROOT / "src"
-DIST = ROOT / "dist"
 BUILD = ROOT / "build"
 RELEASES = ROOT / "Releases"
 
@@ -19,7 +18,7 @@ def run(command: list[str]) -> None:
 
 
 def clean() -> None:
-    for path in (DIST, BUILD, RELEASES):
+    for path in (BUILD, RELEASES):
         if path.exists():
             shutil.rmtree(path)
 
@@ -28,6 +27,7 @@ def clean() -> None:
 
 
 def build_executable(script_path: Path, exe_name: str) -> Path:
+    RELEASES.mkdir(parents=True, exist_ok=True)
     run(
         [
             sys.executable,
@@ -35,26 +35,23 @@ def build_executable(script_path: Path, exe_name: str) -> Path:
             "PyInstaller",
             "--clean",
             "--onefile",
+            "--distpath",
+            str(RELEASES),
+            "--workpath",
+            str(BUILD),
             "--name",
             exe_name,
             str(script_path),
         ]
     )
-    return DIST / f"{exe_name}.exe"
-
-
-def package_release(binary_patcher_exe: Path, apply_patch_exe: Path) -> None:
-    shutil.copy2(binary_patcher_exe, RELEASES / binary_patcher_exe.name)
-    shutil.copy2(apply_patch_exe, RELEASES / apply_patch_exe.name)
+    return RELEASES / f"{exe_name}.exe"
 
 
 def main() -> None:
     clean()
-    binary_patcher_exe = build_executable(SRC_DIR / "binary_patcher.py", "binary_patcher")
-    apply_patch_exe = build_executable(SRC_DIR / "apply_patch.py", "apply_patch")
-    package_release(binary_patcher_exe, apply_patch_exe)
+    build_executable(SRC_DIR / "binary_patcher.py", "binary_patcher")
+    build_executable(SRC_DIR / "apply_patch.py", "apply_patch")
     print("\n构建完成。输出目录:")
-    print(f"- 可执行文件: {DIST}")
     print(f"- 发布包: {RELEASES}")
 
 

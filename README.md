@@ -1,6 +1,6 @@
 # Binary Patcher
 
-这是一个用于生成和应用二进制补丁的 Windows 友好项目，已经整理为更适合放到 GitHub 的目录结构，并支持整目录补丁工作流。
+这是一个用于生成和应用二进制补丁的 Windows 友好项目，并支持整目录补丁工作流。
 
 ## 目录结构
 
@@ -88,24 +88,10 @@ scripts\build.bat
 
 构建后会输出：
 
-- `dist/`：PyInstaller 生成的 exe
-- `Releases/`：整理好的发布目录（仅保留通用方案产物）
-
-> 注意：当前这台机器只有 Python 3.14，而 `bsdiff4` 在该版本上缺少可直接安装的预编译 wheel，本地构建测试会卡在编译依赖阶段。GitHub Actions 使用 Python 3.11，可正常构建。
+- `Releases/`：PyInstaller 直接输出的 exe 发布目录
 
 ## GitHub Actions
 
 已支持在 GitHub 上自动构建 Windows 可执行文件，工作流文件位于：
 
 - `.github/workflows/build.yml`
-
-## 这次整理内容
-
-- 资源文件按职责归类到 `src/` 和 `scripts/`
-- 保留仓库根目录用于项目配置文件
-- 调整了本地构建脚本和 GitHub Actions 路径
-- 构建产物统一输出到 `Releases/`
-- `binary_patcher.py` 已支持 `Old / New / Patch` 整目录补丁生成
-- `apply_patch.py` 已支持从旧版根目录内的 `Patch/` 自动整包应用补丁
-- 已移除旧的 `TS_patch` 专用适配发布目录
-- 保持 Windows / PowerShell 使用场景优先
