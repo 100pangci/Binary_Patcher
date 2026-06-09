@@ -1,6 +1,6 @@
 # Binary Patcher
 
-这是一个用于生成和应用二进制补丁的 Windows 友好项目，并支持整目录补丁工作流。
+这是一个用于生成和应用二进制补丁的 Windows 友好项目，并支持整目录补丁工作流。项目现已统一通过 HDiffPatch (`hdiffz` / `hpatchz`) 处理补丁生成与应用。
 
 ## 目录结构
 
@@ -30,6 +30,8 @@
 python -m pip install -r requirements.txt
 ```
 
+> 运行时不再依赖 `bsdiff4` Python 包；补丁能力由构建脚本下载并随程序分发的 HDiffPatch 二进制提供。
+
 ### 整目录补丁工作流
 
 首次运行：
@@ -56,6 +58,10 @@ python src/binary_patcher.py
 - 与原目录结构一致的 `*.patch`
 - 对新增文件生成 `*.new`
 - 自动复制 `apply_patch.py`
+- 自动复制 `hdiffpatch_utils.py`
+- 自动复制 `hpatchz.exe` / `hdiffz.exe`（便于脚本模式直接运行）
+
+生成补丁时，程序会自动读取当前电脑的 CPU 线程数，默认会预留 1 个线程给系统，其余线程传给 `hdiffz` 的 `-p-线程数` 参数以启用多线程加速；如果机器只有 1 个线程，则仍会至少使用 1 个线程运行。
 
 ### 应用整包补丁
 
@@ -85,6 +91,8 @@ python src/binary_patcher.py apply old.bin update.patch restored.bin
 ```powershell
 scripts\build.bat
 ```
+
+构建脚本会自动下载 HDiffPatch 最新版 Windows 64 位发行包到 `bin/`，并在打包 `binary_patcher.exe` / `apply_patch.exe` 时一并嵌入。
 
 构建后会输出：
 

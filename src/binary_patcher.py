@@ -6,13 +6,14 @@ import shutil
 from pathlib import Path
 import sys
 
-import bsdiff4
+from hdiffpatch_utils import run_hdiffz, run_hpatchz
 
 
 WORKSPACE_DIRS = ("Old", "New", "Patch")
 MANIFEST_NAME = "manifest.json"
 INSTRUCTIONS_NAME = "README.txt"
 APPLIER_SCRIPT_NAME = "apply_patch.py"
+HDIFFPATCH_HELPER_NAME = "hdiffpatch_utils.py"
 
 
 def format_size(size_bytes):
@@ -82,27 +83,22 @@ def init_workspace(base_dir):
 
 def create_patch(old_file_path, new_file_path, patch_file_path):
     try:
-        print(f"正在读取旧文件: {old_file_path}")
-        with open(old_file_path, "rb") as f_old:
-            old_data = f_old.read()
-
-        print(f"正在读取新文件: {new_file_path}")
-        with open(new_file_path, "rb") as f_new:
-            new_data = f_new.read()
-
-        print("正在计算差异并生成补丁...")
-        patch_data = bsdiff4.diff(old_data, new_data)
-
         ensure_parent_dir(patch_file_path)
-        print(f"正在将补丁写入: {patch_file_path}")
-        with open(patch_file_path, "wb") as f_patch:
-            f_patch.write(patch_data)
+        old_size = Path(old_file_path).stat().st_size
+        new_size = Path(new_file_path).stat().st_size
+
+        print(f"正在读取旧文件: {old_file_path}")
+        print(f"正在读取新文件: {new_file_path}")
+        print("正在调用 HDiffPatch 生成补丁...")
+        thread_count = run_hdiffz(old_file_path, new_file_path, patch_file_path)
+        patch_size = Path(patch_file_path).stat().st_size
 
         print("-" * 30)
         print("补丁创建成功！")
-        print(f"  - 旧文件大小: {format_size(len(old_data))}")
-        print(f"  - 新文件大小: {format_size(len(new_data))}")
-        print(f"  - 补丁文件大小: {format_size(len(patch_data))}")
+        print(f"  - 使用线程数: {thread_count}")
+        print(f"  - 旧文件大小: {format_size(old_size)}")
+        print(f"  - 新文件大小: {format_size(new_size)}")
+        print(f"  - 补丁文件大小: {format_size(patch_size)}")
         print("-" * 30)
     except FileNotFoundError as e:
         print(f"错误: 文件未找到 - {e.filename}", file=sys.stderr)
@@ -115,25 +111,17 @@ def create_patch(old_file_path, new_file_path, patch_file_path):
 def apply_patch(old_file_path, patch_file_path, output_file_path):
     try:
         print(f"正在读取旧文件: {old_file_path}")
-        with open(old_file_path, "rb") as f_old:
-            old_data = f_old.read()
-
         print(f"正在读取补丁文件: {patch_file_path}")
-        with open(patch_file_path, "rb") as f_patch:
-            patch_data = f_patch.read()
-
-        print("正在应用补丁...")
-        new_data = bsdiff4.patch(old_data, patch_data)
 
         ensure_parent_dir(output_file_path)
-        print(f"正在将还原后的新文件写入: {output_file_path}")
-        with open(output_file_path, "wb") as f_output:
-            f_output.write(new_data)
+        print("正在调用 HDiffPatch 应用补丁...")
+        run_hpatchz(old_file_path, patch_file_path, output_file_path)
+        output_size = Path(output_file_path).stat().st_size
 
         print("-" * 30)
         print("补丁应用成功！")
         print(f"  - 输出文件 '{output_file_path}' 已生成。")
-        print(f"  - 输出文件大小: {format_size(len(new_data))}")
+        print(f"  - 输出文件大小: {format_size(output_size)}")
         print("-" * 30)
     except FileNotFoundError as e:
         print(f"错误: 文件未找到 - {e.filename}", file=sys.stderr)
@@ -158,6 +146,20 @@ def copy_applier_script(patch_dir):
     script_source = Path(__file__).with_name(APPLIER_SCRIPT_NAME)
     if script_source.exists():
         shutil.copy2(script_source, patch_dir / APPLIER_SCRIPT_NAME)
+
+    helper_source = Path(__file__).with_name(HDIFFPATCH_HELPER_NAME)
+    if helper_source.exists():
+        shutil.copy2(helper_source, patch_dir / HDIFFPATCH_HELPER_NAME)
+
+    for binary_name in ("hpatchz.exe", "hdiffz.exe"):
+        candidate_paths = [
+            Path(__file__).resolve().parent.parent / "bin" / binary_name,
+            Path.cwd() / "bin" / binary_name,
+        ]
+        for candidate in candidate_paths:
+            if candidate.exists():
+                shutil.copy2(candidate, patch_dir / binary_name)
+                break
 
 
 def build_patch_bundle(base_dir):

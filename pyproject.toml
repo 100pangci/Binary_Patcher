@@ -5,18 +5,16 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "binary-patcher"
 version = "1.0.0"
-description = "A small tool for creating and applying binary patches with bsdiff4"
+description = "A small tool for creating and applying binary patches with HDiffPatch"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = [
-  "bsdiff4>=1.2.6",
-]
+dependencies = []
 authors = [
   { name = "Project Maintainer" }
 ]
 
 [tool.setuptools]
-py-modules = ["binary_patcher", "apply_patch"]
+py-modules = ["binary_patcher", "apply_patch", "hdiffpatch_utils"]
 
 [tool.setuptools.package-dir]
 "" = "src"

@@ -4,7 +4,7 @@ from pathlib import Path
 import shutil
 import sys
 
-import bsdiff4
+from hdiffpatch_utils import run_hpatchz
 
 
 MANIFEST_NAME = "manifest.json"
@@ -52,16 +52,8 @@ def load_manifest(patch_dir):
 
 
 def apply_binary_patch(old_file_path, patch_file_path, output_file_path):
-    with open(old_file_path, "rb") as f_old:
-        old_data = f_old.read()
-
-    with open(patch_file_path, "rb") as f_patch:
-        patch_data = f_patch.read()
-
-    new_data = bsdiff4.patch(old_data, patch_data)
     ensure_parent_dir(output_file_path)
-    with open(output_file_path, "wb") as f_output:
-        f_output.write(new_data)
+    run_hpatchz(old_file_path, patch_file_path, output_file_path)
 
 
 def create_backup(target_path):
