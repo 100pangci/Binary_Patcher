@@ -13,6 +13,7 @@ WORKSPACE_DIRS = ("Old", "New", "Patch")
 MANIFEST_NAME = "manifest.json"
 INSTRUCTIONS_NAME = "README.txt"
 APPLIER_SCRIPT_NAME = "apply_patch.py"
+ROLLBACK_SCRIPT_NAME = "rollback_patch.py"
 HDIFFPATCH_HELPER_NAME = "hdiffpatch_utils.py"
 
 
@@ -146,6 +147,10 @@ def copy_applier_script(patch_dir):
     script_source = Path(__file__).with_name(APPLIER_SCRIPT_NAME)
     if script_source.exists():
         shutil.copy2(script_source, patch_dir / APPLIER_SCRIPT_NAME)
+
+    rollback_source = Path(__file__).with_name(ROLLBACK_SCRIPT_NAME)
+    if rollback_source.exists():
+        shutil.copy2(rollback_source, patch_dir / ROLLBACK_SCRIPT_NAME)
 
     helper_source = Path(__file__).with_name(HDIFFPATCH_HELPER_NAME)
     if helper_source.exists():

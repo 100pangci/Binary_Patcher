@@ -16,6 +16,7 @@ SRC_DIR = ROOT / "src"
 BUILD = ROOT / "build"
 RELEASES = ROOT / "Releases"
 BIN_DIR = ROOT / "bin"
+PACKAGE_DIR = RELEASES / "binary_patcher_toolkit"
 HDIFFPATCH_REPO_API = "https://api.github.com/repos/sisong/HDiffPatch/releases/latest"
 BINARY_DESTINATION = "bin"
 
@@ -89,12 +90,27 @@ def build_executable(script_path: Path, exe_name: str) -> Path:
     return RELEASES / f"{exe_name}.exe"
 
 
+def create_release_package(executables: list[Path]) -> Path:
+    PACKAGE_DIR.mkdir(parents=True, exist_ok=True)
+    for executable in executables:
+        shutil.copy2(executable, PACKAGE_DIR / executable.name)
+
+    archive_base = RELEASES / "binary_patcher_toolkit"
+    archive_path = shutil.make_archive(str(archive_base), "zip", root_dir=PACKAGE_DIR)
+    return Path(archive_path)
+
+
 def main() -> None:
     clean()
-    build_executable(SRC_DIR / "binary_patcher.py", "binary_patcher")
-    build_executable(SRC_DIR / "apply_patch.py", "apply_patch")
+    executables = [
+        build_executable(SRC_DIR / "binary_patcher.py", "binary_patcher"),
+        build_executable(SRC_DIR / "apply_patch.py", "apply_patch"),
+        build_executable(SRC_DIR / "rollback_patch.py", "rollback_patch"),
+    ]
+    archive_path = create_release_package(executables)
     print("\nBuild completed. Output directory:")
     print(f"- Releases: {RELEASES}")
+    print(f"- Toolkit zip: {archive_path}")
 
 
 if __name__ == "__main__":

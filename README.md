@@ -19,6 +19,7 @@
 
 - `src/binary_patcher.py`：核心命令行工具
 - `src/apply_patch.py`：面向最终用户的自动补丁脚本
+- `src/rollback_patch.py`：面向最终用户的自动回滚脚本
 - `scripts/build.py`：统一构建与发布整理脚本
 - `scripts/build.bat`：Windows 下一键构建入口
 
@@ -58,6 +59,7 @@ python src/binary_patcher.py
 - 与原目录结构一致的 `*.patch`
 - 对新增文件生成 `*.new`
 - 自动复制 `apply_patch.py`
+- 自动复制 `rollback_patch.py`
 - 自动复制 `hdiffpatch_utils.py`
 - 自动复制 `hpatchz.exe` / `hdiffz.exe`（便于脚本模式直接运行）
 
@@ -77,6 +79,21 @@ python src/binary_patcher.py
 - 删除新版中已不存在的旧文件
 - 为原文件生成 `*.backup_before_patch` 备份
 
+### 回滚整包补丁
+
+如果你需要撤销已经打过的补丁，可在旧版本根目录运行：
+
+- `Patch/rollback_patch.py`
+  或
+- `rollback_patch.exe`
+
+它会按 `manifest.json` 自动：
+
+- 恢复变更文件对应的 `*.backup_before_patch`
+- 恢复被删除文件对应的 `*.backup_before_patch`
+- 删除补丁新增出来的文件
+- 保持原有目录结构不乱
+
 ### 单文件命令模式
 
 ```powershell
@@ -91,6 +108,13 @@ scripts\build.bat
 ```
 
 构建脚本会自动下载 HDiffPatch 最新版 Windows 64 位发行包到 `bin/`，并在打包 `binary_patcher.exe` / `apply_patch.exe` 时一并嵌入。
+
+构建后的工具包包含：
+
+- `binary_patcher.exe`
+- `apply_patch.exe`
+- `rollback_patch.exe`
+- `binary_patcher_toolkit.zip`（包含以上三个 exe，便于整包分发）
 
 构建后会输出：
 

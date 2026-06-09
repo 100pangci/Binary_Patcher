@@ -10,7 +10,8 @@ env/
 
 build/
 dist/
-release/
+Release/
+tmp_test/
 
 .vscode/
 .idea/
@@ -18,3 +19,4 @@ Thumbs.db
 Desktop.ini
 
 *.exe
+Releases/binary_patcher_toolkit.zip

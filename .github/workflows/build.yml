@@ -45,6 +45,8 @@ jobs:
           path: |
             Releases/binary_patcher.exe
             Releases/apply_patch.exe
+            Releases/rollback_patch.exe
+            Releases/binary_patcher_toolkit.zip
 
   release:
     name: Create Release
@@ -65,4 +67,6 @@ jobs:
           files: |
             artifacts/binary-patcher-windows-${{ github.ref_name }}/binary_patcher.exe
             artifacts/binary-patcher-windows-${{ github.ref_name }}/apply_patch.exe
+            artifacts/binary-patcher-windows-${{ github.ref_name }}/rollback_patch.exe
+            artifacts/binary-patcher-windows-${{ github.ref_name }}/binary_patcher_toolkit.zip
           generate_release_notes: true

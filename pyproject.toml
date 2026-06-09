@@ -14,7 +14,7 @@ authors = [
 ]
 
 [tool.setuptools]
-py-modules = ["binary_patcher", "apply_patch", "hdiffpatch_utils"]
+py-modules = ["binary_patcher", "apply_patch", "rollback_patch", "hdiffpatch_utils"]
 
 [tool.setuptools.package-dir]
 "" = "src"
