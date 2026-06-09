@@ -1,6 +1,13 @@
 # Binary Patcher
-
 这是一个用于生成和应用二进制补丁项目，并支持整目录补丁工作流。项目现已统一通过 HDiffPatch (`hdiffz` / `hpatchz`) 处理补丁生成与应用。
+
+支持：
+
+- 生成整目录补丁
+- 应用整目录补丁
+- 一键回滚已经应用的补丁
+
+项目底层统一使用 **HDiffPatch**（`hdiffz` / `hpatchz`）。
 
 ## 目录结构
 
@@ -23,55 +30,65 @@
 - `scripts/build.py`：统一构建与发布整理脚本
 - `scripts/build.bat`：Windows 下一键构建入口
 
-## 本地使用
+## 下载什么？
 
-### 安装依赖
+请直接下载发布页里的：
 
-```powershell
-python -m pip install -r requirements.txt
-```
+- `binary_patcher_toolkit.zip`
 
-> 运行时不再依赖 `bsdiff4` Python 包；补丁能力由构建脚本下载并随程序分发的 HDiffPatch 二进制提供。
+压缩包内包含 3 个工具：
 
-### 整目录补丁工作流
+- `binary_patcher.exe`：生成补丁
+- `apply_patch.exe`：应用补丁
+- `rollback_patch.exe`：回滚补丁
 
-首次运行：
+---
 
-```powershell
-python src/binary_patcher.py
-```
+## 一、生成整目录补丁
 
-程序会自动创建：
+### 第一次运行
+
+双击运行：
+
+- `binary_patcher.exe`
+
+程序会自动创建以下目录：
 
 - `Old/`
 - `New/`
 - `Patch/`
 
+### 准备文件
+
 然后你只需要：
 
-1. 把旧版完整目录放进 `Old/`
-2. 把新版完整目录放进 `New/`
-3. 再次运行 `python src/binary_patcher.py`
+1. 把**旧版本完整目录**放进 `Old/`
+2. 把**新版本完整目录**放进 `New/`
+3. 再次双击运行 `binary_patcher.exe`
+
+### 生成结果
 
 程序会先计算 SHA256，再按相同相对路径找出变更、新增、删除文件，并在 `Patch/` 中生成：
 
 - `manifest.json`
 - 与原目录结构一致的 `*.patch`
 - 对新增文件生成 `*.new`
-- 自动复制 `apply_patch.py`
-- 自动复制 `rollback_patch.py`
-- 自动复制 `hdiffpatch_utils.py`
-- 自动复制 `hpatchz.exe` / `hdiffz.exe`（便于脚本模式直接运行）
+> 生成补丁时，程序会自动读取当前电脑的 CPU 线程数，默认会预留 1 个线程给系统，其余线程用于 HDiffPatch 多线程加速；如果机器只有 1 个线程，则仍至少使用 1 个线程运行。
 
-生成补丁时，程序会自动读取当前电脑的 CPU 线程数，默认会预留 1 个线程给系统，其余线程传给 `hdiffz` 的 `-p-线程数` 参数以启用多线程加速；如果机器只有 1 个线程，则仍会至少使用 1 个线程运行。
+---
 
-### 应用整包补丁
+## 二、应用整包补丁
 
-把生成好的整个 `Patch/` 文件夹和`app_patch.exe`一起复制到旧版程序根目录内，然后双击：
+把以下内容复制到**旧版本程序根目录**：
+
+- 整个 `Patch/` 文件夹
+- `apply_patch.exe`
+
+然后双击运行：
 
 - `apply_patch.exe`
 
-它会按照 `manifest.json` 自动：
+程序会按照 `manifest.json` 自动：
 
 - 校验旧文件 SHA256
 - 对变更文件打补丁
@@ -79,27 +96,44 @@ python src/binary_patcher.py
 - 删除新版中已不存在的旧文件
 - 为原文件生成 `*.backup_before_patch` 备份
 
-### 回滚整包补丁
+---
 
-如果你需要撤销已经打过的补丁，可在旧版本根目录运行：
+## 三、回滚已经应用的补丁
 
-- `Patch/rollback_patch.py`
-  或
+如果你需要撤销已经打过的补丁，请在**旧版本程序根目录**准备：
+
+- 整个 `Patch/` 文件夹
 - `rollback_patch.exe`
 
-它会按 `manifest.json` 自动：
+然后双击运行：
+
+- `rollback_patch.exe`
+
+程序会按 `manifest.json` 自动：
 
 - 恢复变更文件对应的 `*.backup_before_patch`
 - 恢复被删除文件对应的 `*.backup_before_patch`
 - 删除补丁新增出来的文件
 - 保持原有目录结构不乱
 
-### 单文件命令模式
+回滚完成后，已恢复成功的 `*.backup_before_patch` 备份文件会被自动删除。
 
-```powershell
-python src/binary_patcher.py create old.bin new.bin update.patch
-python src/binary_patcher.py apply old.bin update.patch restored.bin
-```
+---
+
+## 四、发布包中包含什么？
+
+GitHub Release / GitHub Actions 产物中会提供：
+
+- `binary_patcher.exe`
+- `apply_patch.exe`
+- `rollback_patch.exe`
+- `binary_patcher_toolkit.zip`
+
+其中推荐最终用户直接下载：
+
+- `binary_patcher_toolkit.zip`
+
+这样可以一次性拿到全部工具。
 
 ### 构建 exe
 
@@ -120,8 +154,10 @@ scripts\build.bat
 
 - `Releases/`：PyInstaller 直接输出的 exe 发布目录
 
-## GitHub Actions
+---
 
-已支持在 GitHub 上自动构建 Windows 可执行文件，工作流文件位于：
+## 五、GitHub Actions
+
+项目已支持自动构建 Windows 发布包，工作流文件位于：
 
 - `.github/workflows/build.yml`
