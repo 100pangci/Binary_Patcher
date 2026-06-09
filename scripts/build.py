@@ -51,8 +51,8 @@ def main() -> None:
     clean()
     build_executable(SRC_DIR / "binary_patcher.py", "binary_patcher")
     build_executable(SRC_DIR / "apply_patch.py", "apply_patch")
-    print("\n构建完成。输出目录:")
-    print(f"- 发布包: {RELEASES}")
+    print("\nBuild completed. Output directory:")
+    print(f"- Releases: {RELEASES}")
 
 
 if __name__ == "__main__":
