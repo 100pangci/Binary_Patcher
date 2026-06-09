@@ -1,13 +1,13 @@
 # Binary Patcher
 
-这是一个用于生成和应用二进制补丁的 Windows 友好项目，并支持整目录补丁工作流。项目现已统一通过 HDiffPatch (`hdiffz` / `hpatchz`) 处理补丁生成与应用。
+这是一个用于生成和应用二进制补丁项目，并支持整目录补丁工作流。项目现已统一通过 HDiffPatch (`hdiffz` / `hpatchz`) 处理补丁生成与应用。
 
 ## 目录结构
 
 ```text
 .
 ├─ .github/workflows/      # GitHub Actions 自动构建
-├─ scripts/                # Windows 批处理与构建脚本
+├─ scripts/                # 构建脚本
 ├─ src/                    # Python 源码
 ├─ .gitignore
 ├─ pyproject.toml
