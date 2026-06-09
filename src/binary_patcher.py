@@ -56,6 +56,13 @@ def pause_if_needed():
         pass
 
 
+def display_path(path, base_dir):
+    try:
+        return Path(path).resolve().relative_to(Path(base_dir).resolve()).as_posix()
+    except ValueError:
+        return str(path)
+
+
 def init_workspace(base_dir):
     created = []
     for folder_name in WORKSPACE_DIRS:
@@ -73,9 +80,9 @@ def init_workspace(base_dir):
 
     if not any(old_dir.rglob("*")) or not any(new_dir.rglob("*")):
         print("\n请按以下方式准备文件：")
-        print(f"- 旧版本完整目录放入: {old_dir}")
-        print(f"- 新版本完整目录放入: {new_dir}")
-        print(f"- 生成的补丁输出到: {patch_dir}")
+        print(f"- 旧版本完整目录放入: {display_path(old_dir, base_dir)}")
+        print(f"- 新版本完整目录放入: {display_path(new_dir, base_dir)}")
+        print(f"- 生成的补丁输出到: {display_path(patch_dir, base_dir)}")
         print("\n准备完成后，再次运行本程序即可自动生成整包补丁。")
         return False
 

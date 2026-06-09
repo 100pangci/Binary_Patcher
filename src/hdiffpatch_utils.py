@@ -12,7 +12,9 @@ DEFAULT_HDIFFZ_THREADS = 4
 
 def _bundled_base_dir() -> Path:
     if getattr(sys, "frozen", False):
-        return Path(getattr(sys, "_MEIPASS", Path(sys.executable).resolve().parent))
+        # PyInstaller uses _MEIPASS, while Nuitka onefile exposes bundled files
+        # relative to module paths after extraction.
+        return Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))
     return Path(__file__).resolve().parent.parent
 
 

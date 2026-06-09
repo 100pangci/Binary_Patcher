@@ -142,7 +142,7 @@ GitHub Release / GitHub Actions 产物中会提供：
 scripts\build.bat
 ```
 
-构建脚本会自动下载 HDiffPatch 最新版 Windows 64 位发行包到 `bin/`，并在打包 `binary_patcher.exe` / `apply_patch.exe` 时一并嵌入。
+构建脚本会自动下载 HDiffPatch 最新版 Windows 64 位发行包到 `bin/`，并在使用 **Nuitka** 打包 `binary_patcher.exe` / `apply_patch.exe` / `rollback_patch.exe` 时一并嵌入。
 
 构建后的工具包包含：
 
@@ -153,7 +153,7 @@ scripts\build.bat
 
 构建后会输出：
 
-- `Releases/`：PyInstaller 直接输出的 exe 发布目录
+- `Releases/`：Nuitka 构建后整理好的 exe 发布目录
 
 ---
 

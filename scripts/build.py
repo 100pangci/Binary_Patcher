@@ -26,14 +26,17 @@ def run(command: list[str]) -> None:
     subprocess.run(command, check=True, cwd=ROOT)
 
 
+def make_relative_display_path(path: Path) -> str:
+    try:
+        return path.relative_to(ROOT).as_posix()
+    except ValueError:
+        return str(path)
+
+
 def clean() -> None:
     for path in (BUILD, RELEASES):
         if path.exists():
             shutil.rmtree(path)
-
-    for spec_file in ROOT.glob("*.spec"):
-        spec_file.unlink()
-
 
 def ensure_hdiffpatch_binaries() -> list[Path]:
     BIN_DIR.mkdir(parents=True, exist_ok=True)
@@ -66,28 +69,38 @@ def ensure_hdiffpatch_binaries() -> list[Path]:
 
 
 def build_executable(script_path: Path, exe_name: str) -> Path:
+    BUILD.mkdir(parents=True, exist_ok=True)
     RELEASES.mkdir(parents=True, exist_ok=True)
-    add_data_args = []
+    include_data_args = []
     for binary in ensure_hdiffpatch_binaries():
-        add_data_args.extend(["--add-binary", f"{binary}{';' if os.name == 'nt' else ':'}{BINARY_DESTINATION}"])
+        include_data_args.append(
+            f"--include-data-files={binary}={BINARY_DESTINATION}/{binary.name}"
+        )
+
+    command = [
+        sys.executable,
+        "-m",
+        "nuitka",
+        "--onefile",
+        "--assume-yes-for-downloads",
+        "--remove-output",
+        f"--output-dir={BUILD}",
+        f"--output-filename={exe_name}.exe",
+        *include_data_args,
+        str(script_path),
+    ]
+
+    if os.name == "nt":
+        command.insert(5, "--windows-console-mode=force")
+
     run(
-        [
-            sys.executable,
-            "-m",
-            "PyInstaller",
-            "--clean",
-            "--onefile",
-            "--distpath",
-            str(RELEASES),
-            "--workpath",
-            str(BUILD),
-            *add_data_args,
-            "--name",
-            exe_name,
-            str(script_path),
-        ]
+        command
     )
-    return RELEASES / f"{exe_name}.exe"
+
+    built_executable = BUILD / f"{exe_name}.exe"
+    release_executable = RELEASES / built_executable.name
+    shutil.copy2(built_executable, release_executable)
+    return release_executable
 
 
 def create_release_package(executables: list[Path]) -> Path:
@@ -97,6 +110,7 @@ def create_release_package(executables: list[Path]) -> Path:
 
     archive_base = RELEASES / "binary_patcher_toolkit"
     archive_path = shutil.make_archive(str(archive_base), "zip", root_dir=PACKAGE_DIR)
+    shutil.rmtree(PACKAGE_DIR)
     return Path(archive_path)
 
 
@@ -108,9 +122,13 @@ def main() -> None:
         build_executable(SRC_DIR / "rollback_patch.py", "rollback_patch"),
     ]
     archive_path = create_release_package(executables)
+
+    if BUILD.exists():
+        shutil.rmtree(BUILD)
+
     print("\nBuild completed. Output directory:")
-    print(f"- Releases: {RELEASES}")
-    print(f"- Toolkit zip: {archive_path}")
+    print(f"- Releases: {make_relative_display_path(RELEASES)}")
+    print(f"- Toolkit zip: {make_relative_display_path(archive_path)}")
 
 
 if __name__ == "__main__":
