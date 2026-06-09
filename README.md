@@ -65,11 +65,9 @@ python src/binary_patcher.py
 
 ### 应用整包补丁
 
-把生成好的整个 `Patch/` 文件夹复制到旧版程序根目录内，然后双击：
+把生成好的整个 `Patch/` 文件夹和`app_patch.exe`一起复制到旧版程序根目录内，然后双击：
 
-- `Patch/apply_patch.py`
-  或
-- `apply_patch.exe`（如果你后续把 exe 一起分发到旧版根目录）
+- `apply_patch.exe`
 
 它会按照 `manifest.json` 自动：
 

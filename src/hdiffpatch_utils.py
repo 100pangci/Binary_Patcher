@@ -84,6 +84,12 @@ def run_hdiffz(old_file_path, new_file_path, patch_file_path) -> int:
 def run_hpatchz(old_file_path, patch_file_path, output_file_path) -> None:
     executable = find_hdiffpatch_tool(HPATCHZ_NAME)
     subprocess.run(
-        [executable, str(old_file_path), str(patch_file_path), str(output_file_path)],
+        [
+            executable,
+            "-f",
+            str(old_file_path),
+            str(patch_file_path),
+            str(output_file_path),
+        ],
         check=True,
     )
