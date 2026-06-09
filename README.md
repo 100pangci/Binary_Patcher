@@ -16,6 +16,7 @@
 ├─ .github/workflows/      # GitHub Actions 自动构建
 ├─ scripts/                # 构建脚本
 ├─ src/                    # Python 源码
+├─ src/legacy              # 项目之前的源码，使用的旧方案
 ├─ .gitignore
 ├─ pyproject.toml
 ├─ requirements.txt
