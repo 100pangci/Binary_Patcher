@@ -12,8 +12,8 @@ from hdiffpatch_utils import run_hdiffz, run_hpatchz
 WORKSPACE_DIRS = ("Old", "New", "Patch")
 MANIFEST_NAME = "manifest.json"
 INSTRUCTIONS_NAME = "README.txt"
-APPLIER_SCRIPT_NAME = "apply_patch.exe"
-ROLLBACK_SCRIPT_NAME = "rollback_patch.exe"
+APPLIER_SCRIPT_NAME = "apply_patch.py"
+ROLLBACK_SCRIPT_NAME = "rollback_patch.py"
 HDIFFPATCH_HELPER_NAME = "hdiffpatch_utils.py"
 
 

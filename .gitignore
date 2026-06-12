@@ -10,7 +10,7 @@ env/
 
 build/
 dist/
-Release/
+Release/**
 tmp_test/
 
 .vscode/
