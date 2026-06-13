@@ -140,7 +140,7 @@ def main():
 
     print()
     print("整包补丁应用完成！")
-    print("如果需要回滚，可使用同目录下的 *.backup_before_patch 备份文件手动恢复。")
+    print("如果需要回滚，可使用同目录下的 rollback_patch.exe 恢复。")
     pause_and_exit(0)
 
 
